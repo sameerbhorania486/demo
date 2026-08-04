@@ -1,0 +1,12 @@
+Fastapi
+uvicorn
+streamlit
+requests
+python-dotenv
+langchain
+langchain-groq
+langchain-community
+faiss-dpu
+pypdf 
+sqlite-utils
+
