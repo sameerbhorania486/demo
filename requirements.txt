@@ -6,7 +6,6 @@ python-dotenv
 langchain
 langchain-groq
 langchain-community
-faiss-dpu
+faiss-cpu
 pypdf 
 sqlite-utils
-
