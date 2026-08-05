@@ -5,15 +5,19 @@ import os
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 
-load_dotenv()
+api_key = st.text_input(
+    "Enter your Groq API Key",
+    type="password"
+)
 
-api_key = os.getenv("GROQ_API_KEY")
+if not api_key:
+    st.warning("Please enter your Groq API Key to continue.")
+    st.stop()
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     api_key=api_key
 )
-
 st.set_page_config(page_title="AI Chatbot")
 
 st.title("🤖 AI Chatbot")
