@@ -1,11 +1,4 @@
-Fastapi
-uvicorn
 streamlit
-requests
 python-dotenv
 langchain
 langchain-groq
-langchain-community
-faiss-cpu
-pypdf 
-sqlite-utils
