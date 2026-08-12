@@ -1,0 +1,19 @@
+Git is a version control system.
+
+Git init initializes a new Git repository.
+
+Git add stages files for commit.
+
+Git commit saves changes to the repository.
+
+Git status shows the current status of the repository.
+
+Git push uploads local commits to a remote repository.
+
+Git pull downloads changes from a remote repository.
+
+Git clone copies a remote Git repository to the local computer.
+
+Git branch is used to create and manage branches.
+
+Git checkout is used to switch between branches.
