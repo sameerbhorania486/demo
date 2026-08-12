@@ -1,32 +1,29 @@
-from langchain_community.document_loaders import (
-    DirectoryLoader,
-    TextLoader
-)
-
-from dotenv import load_dotenv
-from langchain_core.tools import tool
+from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, ToolMessage
+from dotenv import load_dotenv
 import os
 
-
 # =========================
-# LOAD ENVIRONMENT VARIABLES
+# LOAD ENVIRONMENT
 # =========================
 
 load_dotenv()
 
-api_key = os.getenv("api_key")
+api_key = os.getenv("GROQ_API_KEY")
+
+if not api_key:
+    raise ValueError("Groq API key not found in .env")
 
 
 # =========================
-# TXT LOADER
+# LOAD TXT FILES
 # =========================
 
 text_loader = DirectoryLoader(
-    path="File_Loader",
+    path="books",
     glob="*.txt",
-    loader_cls=TextLoader
+    loader_cls=TextLoader,
+    loader_kwargs={"encoding": "utf-8"}
 )
 
 text_docs = text_loader.load()
@@ -35,25 +32,12 @@ print("TXT files loaded:", len(text_docs))
 
 
 # =========================
-# TEXT TOOL
+# COMBINE DOCUMENTS
 # =========================
 
-@tool
-def search_text(que: str):
-    """Search relevant information from Text documents.
-    Use this tool when the user asks about Git or GitHub commands.
-    """
-
-    result = []
-
-    for i in text_docs:
-        if que.lower() in i.page_content.lower():
-            result.append(i.page_content)
-
-    if result:
-        return "\n".join(result)
-
-    return "Text information not found."
+knowledge = "\n\n".join(
+    doc.page_content for doc in text_docs
+)
 
 
 # =========================
@@ -68,74 +52,30 @@ llm = ChatGroq(
 
 
 # =========================
-# BIND TOOL
+# ASK QUESTION
 # =========================
 
-llm_tool = llm.bind_tools([
-    search_text
-])
+def ask_question(question):
 
+    prompt = f"""
+You are a helpful AI assistant.
 
-# =========================
-# USER QUESTION
-# =========================
+Answer the user's question using the information
+provided in the knowledge base below.
 
-que = input("How can I help you today? ")
+If the answer is present in the knowledge base,
+give a clear answer.
 
-message = [
-    HumanMessage(content=que)
-]
+If the answer is not present, say:
+"I don't have this information in the knowledge base."
 
+Knowledge Base:
+{knowledge}
 
-# =========================
-# FIRST LLM CALL
-# =========================
+User Question:
+{question}
+"""
 
-response = llm_tool.invoke(message)
+    response = llm.invoke(prompt)
 
-print("\nLLM Decided:")
-print(response.tool_calls)
-
-message.append(response)
-
-
-# =========================
-# TOOL MAPPING
-# =========================
-
-all_tools = {
-    "search_text": search_text
-}
-
-
-# =========================
-# EXECUTE TOOL
-# =========================
-
-for tool_call in response.tool_calls:
-
-    tool_name = tool_call["name"]
-
-    tool_result = all_tools[tool_name].invoke(
-        tool_call["args"]
-    )
-
-    print("\nTool Result:")
-    print(tool_result)
-
-    message.append(
-        ToolMessage(
-            content=tool_result,
-            tool_call_id=tool_call["id"]
-        )
-    )
-
-
-# =========================
-# FINAL LLM RESPONSE
-# =========================
-
-final_response = llm.invoke(message)
-
-print("\nFinal Answer:")
-print(final_response.content)
+    return response.content
