@@ -4,3 +4,4 @@ langchain-core==0.3.74
 langchain-groq==0.3.7
 groq==0.31.0
 python-dotenv
+gtts
